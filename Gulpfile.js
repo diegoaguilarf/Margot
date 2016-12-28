@@ -1,8 +1,8 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-var rename = require('gulp-rename');
 var merge = require('merge-stream');
 var concat = require('gulp-concat');
+var nodemon = require('gulp-nodemon')
 
 gulp.task('fonts', function () {
 	gulp
@@ -34,8 +34,15 @@ gulp.task('styles', function () {
     return mergedStream;
 })
 
-gulp.task('watch', function() {
-    gulp.watch('./assets', ['fonts','images','styles']);
+gulp.task('nodemon', function () {
+    nodemon({script:'server.js'});
 });
 
-gulp.task('default', ['fonts','images','styles','watch'])
+gulp.task('watch', function() {
+    gulp.watch('./assets/stylesheets/*.*', ['styles']);
+    gulp.watch('./assets/images/*.*', ['images']);
+    gulp.watch('./assets/fonts/*.*', ['fonts']);
+
+});
+
+gulp.task('default', ['nodemon','watch','fonts','images','styles'])
