@@ -3,6 +3,7 @@ var sass = require('gulp-sass');
 var merge = require('merge-stream');
 var concat = require('gulp-concat');
 var nodemon = require('gulp-nodemon')
+var browserSync = require('browser-sync');
 
 gulp.task('fonts', function () {
 	gulp
@@ -20,7 +21,12 @@ gulp.task('styles', function () {
 
 	var sassStream = gulp.src('./assets/stylesheets/*.sass')
         .pipe(sass())
-        .pipe(concat('sass-files.scss'))
+        .pipe(concat('sass-files.sass'))
+    ;
+
+    var scssStream = gulp.src('./assets/stylesheets/*.scss')
+        .pipe(sass())
+        .pipe(concat('scss-files.scss'))
     ;
 
     var cssStream = gulp.src('./assets/stylesheets/*.css')
@@ -34,9 +40,6 @@ gulp.task('styles', function () {
     return mergedStream;
 })
 
-gulp.task('nodemon', function () {
-    nodemon({script:'server.js'});
-});
 
 gulp.task('watch', function() {
     gulp.watch('./assets/stylesheets/*.*', ['styles']);
@@ -45,4 +48,28 @@ gulp.task('watch', function() {
 
 });
 
-gulp.task('default', ['nodemon','watch','fonts','images','styles'])
+gulp.task('default', ['browser-sync','watch','fonts','images','styles'])
+
+gulp.task('browser-sync', ['nodemon'], function() {
+    browserSync.init(null, {
+        proxy: "http://localhost:3000",
+        files: ["public/**/*.*","views/*.html"],
+        port: 8000,
+    });
+});
+
+gulp.task('nodemon', function (cb) {
+    
+    var started = false;
+    
+    return nodemon({
+        script: 'server.js'
+    }).on('start', function () {
+        // to avoid nodemon being started multiple times
+        // thanks @matthisk
+        if (!started) {
+            cb();
+            started = true; 
+        } 
+    });
+});
